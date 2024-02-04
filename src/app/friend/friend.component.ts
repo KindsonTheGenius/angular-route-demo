@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {FormBuilder, FormGroup, NgForm} from '@angular/forms';
+import {UntypedFormBuilder, UntypedFormGroup, NgForm} from '@angular/forms';
 
 export class Friend {
   constructor(
@@ -21,17 +21,27 @@ export class Friend {
   styleUrls: ['./friend.component.css']
 })
 export class FriendComponent implements OnInit {
+  constructor(
+    private httpClient: HttpClient,
+    private modalService: NgbModal,
+    private fb: UntypedFormBuilder
+  ) { }
 
   closeResult: string;
   friends: Friend[];
   friend: Friend;
-  editForm: FormGroup;
+  editForm: UntypedFormGroup;
   private deleteId: number;
-  constructor(
-    private httpClient: HttpClient,
-    private modalService: NgbModal,
-    private fb: FormBuilder
-  ) { }
+
+   static getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
+    }
+  }
 
   ngOnInit(): void {
     this.getFriends();
@@ -60,18 +70,8 @@ export class FriendComponent implements OnInit {
       ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
       this.closeResult = `Closed with: ${result}`;
     }, (reason) => {
-      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+      this.closeResult = `Dismissed ${FriendComponent.getDismissReason(reason)}`;
     });
-  }
-
-  private getDismissReason(reason: any): string {
-    if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
-    } else {
-      return `with: ${reason}`;
-    }
   }
 
   onSubmit(f: NgForm){
